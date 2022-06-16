@@ -1,0 +1,2 @@
+create database "test" set password "password" set username "root";
+create cell "test" in "test";
