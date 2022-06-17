@@ -9,17 +9,45 @@ import (
 	"log"
 	"os"
 
+	"gopkg.in/yaml.v3"
 	"github.com/lucsky/cuid"
 )
 
 
-func NewNextDatabase(name string, username string, password string, port uint32) *NextDatabase {
+	
+func check(e error) {
+    if e != nil {
+        panic(e)
+    }
+}
+
+func NewNextDatabase(name string, username string, password string, port uint32) {
+	if err := os.Mkdir("/etc/nextdb/", 0755); err != nil {
+		if !errors.Is(err, os.ErrExist) {
+			log.Panic(err)
+		}
+	}
+	if err := os.Mkdir("/etc/nextdb/databases", 0755); err != nil {
+		if !errors.Is(err, os.ErrExist) {
+			log.Panic(err)
+		}
+	}
 	if err := os.Mkdir("/etc/nextdb/databases/" + name, 0755); err != nil {
 		if !errors.Is(err, os.ErrExist) {
 			log.Panic(err)
 		}
 	}
-	return &NextDatabase{name, username, password, int32(port)}
+
+	conf := &NextDatabase{
+		name, 
+		username, 
+		password, 
+		int32(port),
+	}
+
+	data, _ := yaml.Marshal(conf)
+	err := os.WriteFile("/etc/nextdb/databases/" + name +"/database.yaml", data, 0644)
+	check(err) 
 }
 
 
